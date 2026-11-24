@@ -2,7 +2,7 @@
 
 > *Rigidez numérica em redes neurais biológicas — o conectoma da Drosophila melanogaster como estudo de caso*
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/OWNER/drosophila-connectome-stiffness/blob/main/drosophila_connectome_stiffness.ipynb)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/brunoabreuco/drosophila-connectome-stiffness/blob/main/drosophila_connectome_stiffness.ipynb)
 
 **Course:** Numerical Calculus (*Cálculo Numérico*) — ICT / UNIFESP  
 **Repository:** `drosophila-connectome-stiffness`
@@ -32,7 +32,6 @@ drosophila-connectome-stiffness/
 ├── data/                                   # Extracted connectome matrices (planned)
 ├── results/                                # Generated figures and LaTeX/CSV tables (planned)
 ├── report/                                 # Overleaf LaTeX report template (main.tex, referencias.bib)
-├── UNIFESP_CN_PROPOSTA_PROJETO_FINAL.pdf   # Official project proposal
 ├── .gitignore
 └── README.md
 ```
@@ -45,4 +44,4 @@ drosophila-connectome-stiffness/
    NEUPRINT_TOKEN=your_token_here
    ```
 
-2. Open the main notebook in Google Colab (once pushed to GitHub, replace `OWNER` in the Colab badge URL above with your GitHub username/organization) or run the analysis locally with Python (`numpy`, `scipy`, `matplotlib`, `neuprint-python`).
+2. Open the main notebook directly in Google Colab using the **Open in Colab** badge at the top, or run the analysis locally with Python (`numpy`, `scipy`, `matplotlib`, `neuprint-python`).
