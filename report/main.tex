@@ -1,0 +1,169 @@
+\documentclass[12pt,a4paper]{article}
+
+% Template de relatório — Cálculo Numérico
+% Compilador recomendado no Overleaf: pdfLaTeX
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazil]{babel}
+\usepackage{lmodern}
+\usepackage{geometry}
+\geometry{top=2.5cm,bottom=2.5cm,left=3cm,right=2cm}
+\usepackage{setspace}
+\onehalfspacing
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{amsmath,amssymb}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage[alf]{abntex2cite}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    citecolor=black,
+    urlcolor=blue,
+    pdftitle={Relatório — Cálculo Numérico},
+    pdfauthor={UNIFESP}
+}
+
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny,
+    showstringspaces=false,
+    captionpos=b
+}
+
+% Edite os campos abaixo
+\newcommand{\TituloRelatorio}{Título do trabalho}
+\newcommand{\Disciplina}{Cálculo Numérico}
+\newcommand{\Universidade}{Universidade Federal de São Paulo (UNIFESP)}
+\newcommand{\Curso}{Nome do curso}
+\newcommand{\Ano}{2026}
+
+\begin{document}
+
+% -------------------- CAPA -----------------------
+\begin{titlepage}
+    \centering
+    {\large \Universidade\par}
+    \vspace{0.5cm}
+    {\large \Curso\par}
+    \vspace{1cm}
+    {\large \Disciplina\par}
+    \vspace{2.5cm}
+    {\LARGE\bfseries \TituloRelatorio\par}
+    \vspace{1.5cm}
+    {\large Relatório acadêmico\par}
+    \vfill
+    \begin{minipage}{0.85\textwidth}
+        \centering
+        \textbf{Integrantes}\\[0.4cm]
+        % Liste os integrantes em ordem alfabética, se essa for a orientação docente.
+        Nome Sobrenome\\
+        Nome Sobrenome\\
+        Nome Sobrenome
+    \end{minipage}
+    \vfill
+    {\large São José dos Campos\par}
+    {\large \Ano\par}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+\section{Introdução}
+Apresente o problema estudado, sua motivação e a organização do relatório. Explique por que o método numérico escolhido é adequado ao problema.
+
+\section{Objetivos}
+\subsection{Objetivo geral}
+Descreva o objetivo principal do trabalho.
+
+\subsection{Objetivos específicos}
+Liste os objetivos específicos, como implementar o método, testar sua precisão e analisar seu desempenho computacional.
+
+\section{Fundamentação teórica}
+Apresente os conceitos matemáticos necessários, as hipóteses e o método numérico utilizado. Descreva as etapas do algoritmo e cite as fontes consultadas.
+
+\subsection{Descrição do método}
+Explique o procedimento numérico. Inclua fórmulas, condições de aplicação, critérios de parada e possíveis limitações.
+
+\subsection{Algoritmo}
+Descreva as etapas do algoritmo em linguagem natural ou pseudocódigo. Se for útil, inclua o código-fonte em apêndice ou no repositório indicado na Seção \ref{sec:codigo}.
+
+\section{Implementação computacional}
+Informe a linguagem de programação, bibliotecas, ambiente de execução e decisões de implementação. Explique como o método foi traduzido para código e quais tolerâncias ou parâmetros foram utilizados.
+
+\subsection{Trecho de código (opcional)}
+\begin{lstlisting}[language=Python,caption={Exemplo de estrutura de código em Python}]
+# Substitua este exemplo pelo código do trabalho
+def metodo_numerico(dados):
+    # implementar o método
+    resultado = None
+    return resultado
+\end{lstlisting}
+
+\section{Experimentos numéricos}
+Descreva os problemas de teste, os dados utilizados, os valores iniciais, os parâmetros e as condições de execução. Os experimentos devem ser suficientemente documentados para permitir sua reprodução.
+
+\subsection{Configuração dos testes}
+Registre, quando aplicável, tolerância, número máximo de iterações, tamanho da malha, precisão aritmética, valores iniciais e critérios de parada.
+
+\subsection{Resultados}
+Apresente tabelas, gráficos e comparações. Informe as unidades e explique as métricas utilizadas.
+
+\begin{table}[H]
+\centering
+\caption{Modelo de tabela de resultados}
+\label{tab:resultados}
+\begin{tabular}{lrrr}
+\toprule
+Problema & Resultado numérico & Erro estimado & Iterações\\
+\midrule
+Teste 1 & 0,0000 & 0,0000 & 0\\
+Teste 2 & 0,0000 & 0,0000 & 0\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Gráficos e figuras}
+Envie os arquivos de imagem ao Overleaf e atualize o nome no comando abaixo.
+\begin{figure}[H]
+\centering
+% Faça upload de figura.png para o projeto Overleaf.
+\includegraphics[width=0.75\textwidth]{figura.png}
+\caption{Descrição do gráfico ou da figura.}
+\label{fig:resultado}
+\small Fonte: elaboração própria.
+\end{figure}
+
+\section{Análise e discussão}
+Interprete os resultados. Discuta a precisão, a convergência, a estabilidade, o custo computacional e as limitações observadas, conforme o método estudado. Quando possível, compare com uma solução exata, analítica ou de referência.
+
+\section{Conclusões}
+Retome os objetivos e sintetize os principais resultados. Indique o que foi aprendido, as limitações do estudo e possíveis melhorias.
+
+\section{Referências}
+Liste todas as fontes citadas no texto. Cadastre as referências no arquivo \texttt{referencias.bib} e utilize comandos como \texttt{\textbackslash cite\{chave\}}.
+\bibliography{referencias}
+
+\appendix
+\section{Código-fonte e instruções de execução}
+\label{sec:codigo}
+Inclua instruções para executar os programas. Para códigos extensos, prefira disponibilizar o material em um repositório e indicar o link abaixo.
+
+\noindent\textbf{Repositório:} \url{https://github.com/organizacao/repositorio}
+
+\section{Dados e problemas de teste}
+Documente os arquivos de entrada, conjuntos de dados, exemplos, valores iniciais e parâmetros usados nos experimentos. Explique como reproduzir cada teste.
+
+\section{Material complementar}
+Inclua demonstrações, cálculos auxiliares, tabelas adicionais ou outras informações necessárias à compreensão do trabalho.
+
+\end{document}

@@ -1,0 +1,29 @@
+# Local study guides (not committed to the repository)
+docs/
+
+# Environment variables and API secrets
+.env
+.env.*
+
+# Editor / Vault metadata
+.obsidian/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+.ipynb_checkpoints/
+.venv/
+venv/
+
+# LaTeX build artifacts
+*.aux
+*.log
+*.out
+*.bbl
+*.blg
+*.toc
+*.synctex.gz
+*.fdb_latexmk
+*.fls
