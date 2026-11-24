@@ -137,7 +137,11 @@ Envie os arquivos de imagem ao Overleaf e atualize o nome no comando abaixo.
 \begin{figure}[H]
 \centering
 % Faça upload de figura.png para o projeto Overleaf.
-\includegraphics[width=0.75\textwidth]{figura.png}
+\IfFileExists{figura.png}{%
+    \includegraphics[width=0.75\textwidth]{figura.png}%
+}{%
+    \fbox{\parbox{0.7\textwidth}{\centering\vspace{1cm}Espaço reservado para figura (\texttt{figura.png})\vspace{1cm}}}%
+}
 \caption{Descrição do gráfico ou da figura.}
 \label{fig:resultado}
 \small Fonte: elaboração própria.
@@ -151,6 +155,7 @@ Retome os objetivos e sintetize os principais resultados. Indique o que foi apre
 
 \section{Referências}
 Liste todas as fontes citadas no texto. Cadastre as referências no arquivo \texttt{referencias.bib} e utilize comandos como \texttt{\textbackslash cite\{chave\}}.
+\nocite{*}
 \bibliography{referencias}
 
 \appendix

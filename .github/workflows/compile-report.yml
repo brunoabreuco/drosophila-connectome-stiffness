@@ -1,0 +1,46 @@
+name: Compile LaTeX Report (Overleaf Free Sync)
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'report/**'
+      - 'results/**'
+      - '.github/workflows/compile-report.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build_latex:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Compile LaTeX document (pdfLaTeX + BibTeX)
+        uses: xu-cheng/latex-action@v3
+        with:
+          root_file: main.tex
+          working_directory: report
+          latexmk_use_lualatex: false
+          extra_system_packages: >-
+            texlive-lang-portuguese
+            texlive-publishers
+            texlive-fonts-recommended
+            texlive-latex-extra
+
+      - name: Upload compiled PDF as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: relatorio-calculo-numerico-pdf
+          path: report/main.pdf
+
+      - name: Commit updated PDF to report/main.pdf
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add -f report/main.pdf
+          git diff --staged --quiet || git commit -m "docs(report): auto-compile report/main.pdf [skip ci]"
+          git push
