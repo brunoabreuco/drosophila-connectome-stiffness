@@ -26,8 +26,8 @@
     linkcolor=black,
     citecolor=black,
     urlcolor=blue,
-    pdftitle={Relatório — Cálculo Numérico},
-    pdfauthor={UNIFESP}
+    pdftitle={Rigidez Numérica em Redes Neurais Biológicas — Cálculo Numérico},
+    pdfauthor={Bruno de Abreu Correia, Felipe Scarpin Mesquita, Guilherme Pombo Takayama Augusto, Júlia Cristina Perroni de Martini Pereira}
 }
 
 \lstset{
@@ -37,14 +37,21 @@
     numbers=left,
     numberstyle=\tiny,
     showstringspaces=false,
-    captionpos=b
+    captionpos=b,
+    literate=
+      {á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+      {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+      {à}{{\`a}}1 {è}{{\`e}}1 {ì}{{\`i}}1 {ò}{{\`o}}1 {ù}{{\`u}}1
+      {ã}{{\~a}}1 {õ}{{\~o}}1 {Ã}{{\~A}}1 {Õ}{{\~O}}1
+      {â}{{\^a}}1 {ê}{{\^e}}1 {î}{{\^i}}1 {ô}{{\^o}}1 {û}{{\^u}}1
+      {ç}{{\c{c}}}1 {Ç}{{\c{C}}}1
 }
 
-% Edite os campos abaixo
-\newcommand{\TituloRelatorio}{Título do trabalho}
+% Campos da capa
+\newcommand{\TituloRelatorio}{Rigidez numérica em redes neurais biológicas --- o conectoma da \textit{Drosophila melanogaster} como estudo de caso}
 \newcommand{\Disciplina}{Cálculo Numérico}
 \newcommand{\Universidade}{Universidade Federal de São Paulo (UNIFESP)}
-\newcommand{\Curso}{Nome do curso}
+\newcommand{\Curso}{Instituto de Ciência e Tecnologia --- Bacharelado em Ciência e Tecnologia / Ciência da Computação}
 \newcommand{\Ano}{2026}
 
 \begin{document}
@@ -57,7 +64,7 @@
     {\large \Curso\par}
     \vspace{1cm}
     {\large \Disciplina\par}
-    \vspace{2.5cm}
+    \vspace{2.2cm}
     {\LARGE\bfseries \TituloRelatorio\par}
     \vspace{1.5cm}
     {\large Relatório acadêmico\par}
@@ -65,10 +72,10 @@
     \begin{minipage}{0.85\textwidth}
         \centering
         \textbf{Integrantes}\\[0.4cm]
-        % Liste os integrantes em ordem alfabética, se essa for a orientação docente.
-        Nome Sobrenome\\
-        Nome Sobrenome\\
-        Nome Sobrenome
+        Bruno de Abreu Correia (RA: 168522)\\
+        Felipe Scarpin Mesquita (RA: 187399)\\
+        Guilherme Pombo Takayama Augusto (RA: 176500)\\
+        Júlia Cristina Perroni de Martini Pereira (RA: 170348)
     \end{minipage}
     \vfill
     {\large São José dos Campos\par}
@@ -78,97 +85,241 @@
 \tableofcontents
 \newpage
 
+% ======================================================================
+% 1. INTRODUÇÃO
+% ======================================================================
 \section{Introdução}
-Apresente o problema estudado, sua motivação e a organização do relatório. Explique por que o método numérico escolhido é adequado ao problema.
 
+A reconstrução em escala sináptica de circuitos neurais completos por microscopia eletrônica de volume transformou a neurociência computacional ao fornecer mapas topológicos exatos de sistemas nervosos biológicos. Um marco fundamental nessa área é o projeto \textit{hemibrain} (\texttt{hemibrain:v1.2.1}), desenvolvido pelo Janelia Research Campus em parceria com a Google, que mapeou cerca de $25.000$ neurônios e milhões de conexões químicas no cérebro central da mosca-da-fruta adulta, \textit{Drosophila melanogaster} \cite{scheffer2020}. Diferentemente de redes artificiais ou grafos aleatórios homogêneos, o conectoma biológico apresenta uma arquitetura fortemente heterogênea e direcionada, na qual a distribuição de graus ponderados (número de sinapses recebidas ou emitidas por cada neurônio) exibe cauda pesada, coexistindo neurônios periféricos fracamente acoplados e interneurônios integradores densamente conectados, denominados \textit{hubs} sinápticos.
+
+Sob a ótica da matemática aplicada e da álgebra linear numérica \cite{strang1997}, a propagação contínua de atividade elétrica ou fluxo sináptico através de uma sub-rede de $N$ neurônios pode ser formulada como um sistema linear autônomo de equações diferenciais ordinárias (EDOs) de primeira ordem, $\frac{d\mathbf{x}}{dt} = A\mathbf{x}$, em que o vetor de estado $\mathbf{x}(t) \in \mathbb{R}^N$ representa o potencial ou nível de ativação de cada neurônio e o operador diferencial $A \in \mathbb{R}^{N \times N}$ incorpora tanto as taxas intrínsecas de decaimento fisiológico quanto o acoplamento sináptico ponderado. Nessa formulação matricial, a topologia do conectoma governa diretamente a localização dos autovalores de $A$ no plano complexo: as somas das conexões aferentes de cada neurônio definem a perda condutiva diagonal e o raio dos discos de Gershgorin associados às linhas da matriz.
+
+Essa conexão direta entre topologia de rede e teoria espectral dá origem a uma patologia clássica em análise numérica: a \textbf{rigidez numérica} (\textit{numerical stiffness}) \cite{hairer1996,burden2016}. Um sistema de EDOs é dito rígido quando suas componentes dinâmicas evoluem em escalas de tempo discrepantes por várias ordens de grandeza, propriedade quantificada pela razão de rigidez $S = \max_i |\operatorname{Re}(\lambda_i)| / \min_i |\operatorname{Re}(\lambda_i)| \gg 1$, sendo $\lambda_i$ os autovalores do operador $A$. No conectoma da \textit{Drosophila}, os \textit{hubs} sinápticos que acumulam milhares de sinapses aferentes geram autovalores com parte real fortemente negativa ($\operatorname{Re}(\lambda) \ll 0$), correspondentes a modos transientes ultrarrápidos que decaem quase instantaneamente. Em contrapartida, neurônios periféricos e modos coletivos de integração operam em escalas temporais lentas ($\operatorname{Re}(\lambda)$ próximo de zero), responsáveis pela persistência de informação no circuito.
+
+Do ponto de vista da integração numérica, a presença simultânea dessas escalas temporais impõe uma severa barreira computacional aos métodos explícitos tradicionais, como o método de Euler Explícito e o método de Runge--Kutta clássico de quarta ordem (RK4). Como suas regiões de estabilidade absoluta no semiplano complexo esquerdo são limitadas, o passo de integração $\Delta t$ passa a ser ditado exclusivamente pelo modo mais rápido do sistema (associado ao maior \textit{hub} sináptico), mesmo após esse modo transiente já ter decaído completamente a zero. Caso $\Delta t$ ultrapasse o limiar crítico $\Delta t_{\text{crit}}$, o integrador explícito sofre explosão numérica oscilatória. Para contornar essa restrição sem sacrificar a eficiência computacional, torna-se indispensável o emprego de métodos implícitos $A$-estáveis --- como o método de Euler Implícito e o método Trapezoidal de Crank--Nicolson --- cuja região de estabilidade abrange todo o semiplano complexo esquerdo $\mathbb{C}^-$, convertendo o problema de evolução temporal na resolução sucessiva de sistemas algébricos lineares esparsos a cada passo de tempo \cite{burden2016,hairer1996}.
+
+O presente relatório está organizado da seguinte forma: a Seção~2 define o objetivo geral e os objetivos específicos do estudo; a Seção~3 desenvolve a fundamentação teórica da modelagem do conectoma via operadores lineares, teoria espectral e métodos de integração; a Seção~4 detalha a implementação computacional, o pipeline de extração de dados via API NeuPrint e as soluções para desafios técnicos de engenharia; a Seção~5 apresenta os experimentos numéricos, iniciando pela caracterização estrutural e biológica da sub-rede da Ponte Protocerebral (\textit{Protocerebral Bridge} -- \texttt{PB}); por fim, as Seções~6 e~7 reúnem a discussão crítica e as conclusões do trabalho.
+
+% ======================================================================
+% 2. OBJETIVOS
+% ======================================================================
 \section{Objetivos}
+
 \subsection{Objetivo geral}
-Descreva o objetivo principal do trabalho.
+Investigar teórica e computacionalmente o fenômeno da rigidez numérica na simulação dinâmica de sistemas lineares de equações diferenciais ordinárias derivados da topologia sináptica real do conectoma da \textit{Drosophila melanogaster} (\texttt{hemibrain:v1.2.1}), relacionando a estrutura de \textit{hubs} biológicos ao espectro do operador diferencial e comparando a estabilidade, a precisão e o custo computacional de integradores explícitos e implícitos.
 
 \subsection{Objetivos específicos}
-Liste os objetivos específicos, como implementar o método, testar sua precisão e analisar seu desempenho computacional.
+Para alcançar o objetivo geral, o trabalho estrutura-se em cinco metas específicas:
+\begin{enumerate}[label=(\alph*)]
+    \item \textbf{Extração e estruturação da matriz de conectividade real:} consultar programaticamente a base pública do projeto \textit{Janelia Hemibrain} via API NeuPrint (\texttt{neuprint-python}) para extrair uma sub-rede funcional relevante de $N \in [100, 150]$ neurônios da Ponte Protocerebral (\texttt{PB}), filtrando artefatos de reconstrução e construindo a matriz de adjacência ponderada esparsa $W \in \mathbb{R}^{N \times N}$;
+    \item \textbf{Modelagem do operador diferencial e análise espectral:} formular o problema de valor inicial $\frac{d\mathbf{x}}{dt} = A\mathbf{x}$ com conservação de fluxo condutivo, calcular numericamente o espectro completo $\{\lambda_i\}_{i=1}^N$ de $A$, determinar a razão de rigidez $S$ e demonstrar via Teorema dos Discos de Gershgorin como a heterogeneidade de graus aferentes $d_i$ governa o espalhamento espectral no semiplano esquerdo;
+    \item \textbf{Análise de estabilidade absoluta de métodos explícitos:} implementar os integradores de Euler Explícito e Runge--Kutta de 4\textsuperscript{a} ordem (RK4), determinar analítica e experimentalmente seus passos críticos de estabilidade ($\Delta t_{\text{crit}}$) a partir dos autovalores dominantes de $A$ e evidenciar a explosão numérica para passos $\Delta t > \Delta t_{\text{crit}}$;
+    \item \textbf{Implementação de métodos implícitos $A$-estáveis e álgebra linear esparsa:} implementar os métodos de Euler Implícito e Crank--Nicolson (Trapezoidal), formulando a transição de estado como a resolução de sistemas lineares $(I - \Delta t\,A)\mathbf{x}^{(k+1)} = \mathbf{x}^{(k)}$ e comparando o desempenho de resolvedores diretos (fatoração LU pré-computada), esparsos (\texttt{scipy.sparse}) e iterativos (Gauss--Seidel/SOR com verificação de dominância diagonal estrita);
+    \item \textbf{Experimento de \textit{knockout} virtual de \textit{hubs}:} remover ou atenuar virtualmente os principais \textit{hubs} sinápticos da matriz $W$ e recalcular a razão de rigidez $S$ e os limites de passo $\Delta t_{\text{crit}}$, comprovando quantitativamente que a rigidez numérica é uma propriedade emergente da arquitetura de cauda pesada do conectoma biológico.
+\end{enumerate}
 
+% ======================================================================
+% 3. FUNDAMENTAÇÃO TEÓRICA
+% ======================================================================
 \section{Fundamentação teórica}
-Apresente os conceitos matemáticos necessários, as hipóteses e o método numérico utilizado. Descreva as etapas do algoritmo e cite as fontes consultadas.
 
-\subsection{Descrição do método}
-Explique o procedimento numérico. Inclua fórmulas, condições de aplicação, critérios de parada e possíveis limitações.
+\subsection{Modelagem do Conectoma como Sistema Linear de EDOs}
 
-\subsection{Algoritmo}
-Descreva as etapas do algoritmo em linguagem natural ou pseudocódigo. Se for útil, inclua o código-fonte em apêndice ou no repositório indicado na Seção \ref{sec:codigo}.
+Do ponto de vista da teoria dos grafos, um circuito neural composto por $N$ neurônios é formalizado como um grafo direcionado e ponderado $G = (\mathcal{V}, \mathcal{E}, W)$, onde $\mathcal{V} = \{1, 2, \dots, N\}$ representa o conjunto de neurônios (vértices) e $\mathcal{E} \subseteq \mathcal{V} \times \mathcal{V}$ denota o conjunto de conexões sinápticas direcionadas (arestas). A topologia quantitativa do circuito é codificada pela matriz de adjacência ponderada $W \in \mathbb{R}^{N \times N}$, cujas entradas não negativas são definidas segundo a convenção pós-sináptica por linha:
+\begin{equation}
+    W_{ij} = w(j \to i) \ge 0, \qquad i, j \in \{1, \dots, N\},
+    \label{eq:matriz_W}
+\end{equation}
+em que $w(j \to i)$ corresponde à contagem total de contatos sinápticos químicos transmitidos do neurônio pré-sináptico $j$ (coluna) para o neurônio pós-sináptico $i$ (linha). A fim de isolar o acoplamento interneuronal e eliminar autossinapses espúrias (\textit{autapses}) decorrentes de artefatos de segmentação volumétrica, impõe-se a condição de diagonal nula:
+\begin{equation}
+    W_{ii} = 0, \qquad \forall\, i \in \{1, \dots, N\}.
+    \label{eq:sem_autapses}
+\end{equation}
 
+Sob a convenção da Equação~\eqref{eq:matriz_W}, a soma dos elementos da $i$-ésima linha de $W$ quantifica a carga sináptica aferente total (\textit{weighted in-degree}) recebida pelo neurônio $i$ a partir de todos os demais neurônios da sub-rede:
+\begin{equation}
+    d_i = \sum_{j=1}^{N} W_{ij}, \qquad D_{\text{in}} = \operatorname{diag}(d_1, d_2, \dots, d_N) \in \mathbb{R}^{N \times N}.
+    \label{eq:grau_entrada}
+\end{equation}
+Em modelos biofísicos lineares de compartimento único (análogos a redes de condutância passiva do tipo RC), a abertura de canais pós-sinápticos no neurônio $i$ aumenta sua condutância total de membrana proporcionalmente ao número de sinapses aferentes $d_i$. Simultaneamente, cada neurônio apresenta uma taxa basal de vazamento passivo (\textit{intrinsic leak}) $\epsilon > 0$ (expressa em $\text{ms}^{-1}$), que garante o retorno exponencial do potencial de membrana ao estado de repouso na ausência de estímulos externos.
+
+Combinando o vazamento intrínseco $-\epsilon x_i(t)$, a perda condutiva proporcional ao grau aferente $-d_i x_i(t)$ e o influxo sináptico ponderado proveniente dos neurônios pré-sinápticos $\sum_{j=1}^{N} W_{ij} x_j(t)$, a evolução temporal do estado $x_i(t)$ do $i$-ésimo neurônio é governada pela equação diferencial:
+\begin{equation}
+    \frac{dx_i}{dt} = -(\epsilon + d_i)\,x_i(t) + \sum_{j=1}^{N} W_{ij}\,x_j(t), \qquad i = 1, \dots, N.
+    \label{eq:edo_componente}
+\end{equation}
+Reunindo as $N$ equações na forma matricial compacta, obtém-se o Problema de Valor Inicial (PVI) linear autônomo:
+\begin{equation}
+    \begin{cases}
+        \dfrac{d\mathbf{x}}{dt} = A\mathbf{x}(t), & t \in [0, T], \\[0.8em]
+        \mathbf{x}(0) = \mathbf{x}_0 \in \mathbb{R}^N,
+    \end{cases}
+    \label{eq:pvi_matricial}
+\end{equation}
+cujo operador diferencial $A \in \mathbb{R}^{N \times N}$ é dado explicitamente por:
+\begin{equation}
+    A = -\epsilon I - D_{\text{in}} + W = -\left(\epsilon I + L_{\text{in}}\right),
+    \label{eq:operador_A}
+\end{equation}
+onde $I \in \mathbb{R}^{N \times N}$ é a matriz identidade e $L_{\text{in}} = D_{\text{in}} - W$ representa o operador Laplaciano direcionado de entrada do grafo neural \cite{strang1997}. Observa-se que uma formulação alternativa simplificada na literatura consiste no deslocamento espectral uniforme $A_{\text{shift}} = -\gamma I + W$ (com $\gamma > \rho(W)$ escolhido suficientemente grande para estabilizar o espectro); contudo, a formulação biofísica Laplaciana da Equação~\eqref{eq:operador_A} possui duas propriedades matemáticas e físicas superiores para a análise numérica:
+\begin{enumerate}
+    \item \textbf{Estabilidade assintótica intrínseca para qualquer $\epsilon > 0$:} os elementos diagonais de $A$ são estritamente negativos, $A_{ii} = -(\epsilon + d_i) < 0$, e a soma dos módulos dos elementos fora da diagonal na linha $i$ é exatamente $\sum_{j \neq i} |A_{ij}| = \sum_{j \neq i} W_{ij} = d_i$. Logo, $|A_{ii}| = \epsilon + d_i > d_i = \sum_{j \neq i} |A_{ij}|$, tornando $A$ uma matriz \textbf{estritamente diagonalmente dominante por linhas};
+    \item \textbf{Acoplamento direto entre \textit{hubs} topológicos e escalas de tempo:} como a entrada diagonal $A_{ii} = -(\epsilon + d_i)$ escala linearmente com o grau aferente $d_i$, neurônios integradores (\textit{hubs}) com $d_i \sim 10^3$ possuem taxas locais de relaxação ordens de grandeza maiores que neurônios periféricos com $d_i \sim 10^1$, reproduzindo fielmente a origem física da rigidez numérica em redes biológicas.
+\end{enumerate}
+
+\subsection{Espectro, Discos de Gershgorin e Rigidez Numérica}
+\textit{[Seção reservada para o desenvolvimento teórico da Parte~2: localização espectral via Teorema dos Discos de Gershgorin, solução analítica via exponencial matricial $\mathbf{x}(t) = e^{At}\mathbf{x}_0$ e definição formal da razão de rigidez $S$.]}
+
+\subsection{Métodos Numéricos Explícitos, Implícitos e Álgebra Linear Esparsa}
+\textit{[Seção reservada para o desenvolvimento teórico das Partes~3 e~4: polinômios de estabilidade absoluta $R(z)$ de Euler Explícito e RK4, propriedades de $A$-estabilidade de Euler Implícito e Crank--Nicolson, e métodos diretos e iterativos para sistemas lineares esparsos.]}
+
+% ======================================================================
+% 4. IMPLEMENTAÇÃO COMPUTACIONAL
+% ======================================================================
 \section{Implementação computacional}
-Informe a linguagem de programação, bibliotecas, ambiente de execução e decisões de implementação. Explique como o método foi traduzido para código e quais tolerâncias ou parâmetros foram utilizados.
 
-\subsection{Trecho de código (opcional)}
-\begin{lstlisting}[language=Python,caption={Exemplo de estrutura de código em Python}]
-# Substitua este exemplo pelo código do trabalho
-def metodo_numerico(dados):
-    # implementar o método
-    resultado = None
-    return resultado
+\subsection{Aquisição, Limpeza de Dados e Desafios Técnicos (Parte 1)}
+
+A infraestrutura computacional do projeto foi desenvolvida em linguagem \texttt{Python 3.11+}, utilizando as bibliotecas científicas \texttt{NumPy} e \texttt{SciPy} (\texttt{scipy.linalg} e \texttt{scipy.sparse}) para álgebra linear densa e esparsa, \texttt{Pandas} para estruturação tabular, \texttt{Matplotlib} para visualização científica e o cliente oficial \texttt{neuprint-python} para comunicação com o banco de dados orientado a grafos Neo4j do servidor público \textit{Janelia NeuPrint} (\url{https://neuprint.janelia.org}, dataset \texttt{hemibrain:v1.2.1}).
+
+Como estudo de caso biológico, selecionou-se a \textbf{Ponte Protocerebral} (\textit{Protocerebral Bridge} -- região \texttt{PB}), uma estrutura central do Complexo Central (\textit{Central Complex}) da \textit{Drosophila melanogaster}. A escolha da região \texttt{PB} justifica-se por três fatores científicos e computacionais: (i) trata-se do núcleo responsável pela representação de orientação espacial e bússola interna (\textit{head-direction system}) do inseto, apresentando topologia recorrente bem caracterizada \cite{scheffer2020}; (ii) abriga simultaneamente neurônios colunares de projeção (\texttt{EPG}, \texttt{PEN}, \texttt{PFL}) e interneurônios globais que cruzam múltiplos glomérulos (\texttt{LPsP} e $\Delta 7$), produzindo forte heterogeneidade de graus sinápticos; e (iii) permite isolar sub-redes funcionais de dimensão controlada ($N = 120$ para a análise principal e $N = 20$ para validação algébrica), adequadas tanto para decomposição espectral exata quanto para experimentos intensivos de integração temporal.
+
+Durante a construção do módulo de extração e pré-processamento (\path{src/connectome.py} e \path{scripts/extract_connectome.py}), três desafios técnicos reais de engenharia de dados e modelagem matemática foram identificados e solucionados:
+
+\begin{enumerate}
+    \item \textbf{Mitigação de \textit{Timeout} na API REST/Cypher do NeuPrint:} consultas ingênuas à função de alto nível \texttt{fetch\_adjacencies(rois='PB')} sobre toda a região \texttt{PB} frequentemente excedem o tempo limite (\textit{HTTP timeout}) do servidor Neo4j público, pois tentam transferir dezenas de milhares de conexões periféricas não filtradas em uma única requisição. Para solucionar esse gargalo, projetou-se uma estratégia em duas etapas via consultas Cypher diretas com compressão HTTP GZIP nativa habilitada no cliente:
+    \begin{itemize}
+        \item \textit{Etapa 1 (Agregação no servidor):} executa-se uma consulta Cypher que filtra no próprio motor Neo4j apenas os neurônios com \texttt{status = 'Traced'} e \texttt{cropped = false} na região \texttt{PB}, ordenando-os pelo grau total de conexões internas e selecionando os $N = 120$ neurônios mais fortemente acoplados;
+        \item \textit{Etapa 2 (Subgrafo induzido restrito):} solicita-se à API exclusivamente as arestas sinápticas cujos identificadores pré-sináptico e pós-sináptico (\texttt{bodyId}) pertencem ao subconjunto de $N = 120$ neurônios selecionado.
+    \end{itemize}
+    Essa arquitetura reduziu o tempo total de varredura dos $824$ neurônios rastreados e $51.859$ conexões brutas da região \texttt{PB} para apenas $5{,}3\text{ s}$. Adicionalmente, implementou-se um sistema de \textit{cache} local determinístico em arquivos CSV (\path{data/W_real_N120.csv}, \path{data/W_real_N20.csv} e metadados associados), garantindo reprodutibilidade exata e execução instantânea (\textit{offline} ou no Google Colab) sem necessidade de token de autenticação a cada execução.
+
+    \item \textbf{Filtragem de Artefatos Biológicos e Autossinapses (\textit{Autapses}):} reconstruções por microscopia eletrônica contêm fragmentos neurais órfãos ou parcialmente truncados nas fronteiras do volume imageado. O pipeline restringe estritamente a seleção a neurônios com reconstrução morfológica validada (\texttt{status = 'Traced'} e \texttt{IsCropped = False}). Além disso, contatos reflexivos de um neurônio consigo mesmo ($i = j$), que frequentemente representam falsos positivos do algoritmo automático de detecção de fendas sinápticas, são explicitamente zerados ($W_{ii} = 0$) via \texttt{np.fill\_diagonal(W, 0.0)} antes do cálculo dos graus aferentes $d_i$.
+
+    \item \textbf{Alinhamento Direcional entre Grafo Sináptico e Operador Diferencial:} na tabela de adjacências retornada pelo NeuPrint, cada registro informa o par ordenado $(\texttt{bodyId\_pre}, \texttt{bodyId\_post}, \texttt{weight})$. Enquanto bibliotecas de análise de grafos usualmente indexam a origem na linha e o destino na coluna, a formulação do sistema dinâmico $\frac{d\mathbf{x}}{dt} = A\mathbf{x}$ exige que a linha $i$ agregue os estímulos que \textit{chegam} ao neurônio $i$. Assim, o pivotamento matricial foi construído mapeando o neurônio pós-sináptico (\texttt{bodyId\_post}) no índice de linha $i$ e o neurônio pré-sináptico (\texttt{bodyId\_pre}) no índice de coluna $j$, garantindo consistência física entre o fluxo sináptico aferente e a soma em linha $d_i = \sum_{j=1}^N W_{ij}$.
+\end{enumerate}
+
+A Listagem~\ref{lst:operador_A} apresenta o trecho central em Python responsável pela higienização da matriz de adjacência $W$, cálculo dos graus aferentes $d_i$ e montagem do operador diferencial linear $A = -\epsilon I - D_{\text{in}} + W$.
+
+\begin{lstlisting}[language=Python,caption={Construção da matriz de conectividade pós-sináptica $W$ e do operador diferencial linear $A$ (\texttt{src/connectome.py}).},label={lst:operador_A}]
+import numpy as np
+
+def build_system_matrix(
+    W: np.ndarray, epsilon: float = 1.0, mode: str = "laplacian"
+) -> np.ndarray:
+    """
+    Higieniza a matriz de adjacencia W (W[i, j] = peso de j -> i)
+    e constroi o operador linear A = -epsilon*I - D_in + W.
+    """
+    # 1. Remove autossinapses (diagonal nula: W_ii = 0)
+    W_clean = np.array(W, dtype=np.float64, copy=True)
+    np.fill_diagonal(W_clean, 0.0)
+    n = W_clean.shape[0]
+    identity = np.eye(n, dtype=np.float64)
+
+    if mode == "laplacian":
+        # 2. Calcula o grau ponderado de entrada (soma por linha pos-sinaptica)
+        d_in = np.sum(W_clean, axis=1)
+        # 3. Monta o operador diferencial linear A = -epsilon*I - D_in + W
+        return -epsilon * identity - np.diag(d_in) + W_clean
+    elif mode == "shift":
+        # Alternativa espectral uniforme: A = -gamma*I + W
+        eigenvalues_W = np.linalg.eigvals(W_clean)
+        gamma = float(np.max(np.real(eigenvalues_W))) + epsilon
+        return -gamma * identity + W_clean
+    else:
+        raise ValueError("Invalid mode. Choose 'laplacian' or 'shift'.")
 \end{lstlisting}
 
+% ======================================================================
+% 5. EXPERIMENTOS NUMÉRICOS
+% ======================================================================
 \section{Experimentos numéricos}
-Descreva os problemas de teste, os dados utilizados, os valores iniciais, os parâmetros e as condições de execução. Os experimentos devem ser suficientemente documentados para permitir sua reprodução.
 
-\subsection{Configuração dos testes}
-Registre, quando aplicável, tolerância, número máximo de iterações, tamanho da malha, precisão aritmética, valores iniciais e critérios de parada.
+\subsection{Caracterização Estrutural da Sub-rede Extraída (Objetivo a)}
 
-\subsection{Resultados}
-Apresente tabelas, gráficos e comparações. Informe as unidades e explique as métricas utilizadas.
+A execução do pipeline de extração sobre a Ponte Protocerebral (\texttt{PB}) do dataset \texttt{hemibrain:v1.2.1} identificou inicialmente um universo de $824$ neurônios totalmente rastreados (\texttt{Traced}) interligados por $51.859$ pares direcionados de conexões químicas. A partir desse conjunto completo, foram extraídos dois subsistemas determinísticos complementares:
+\begin{itemize}
+    \item \textbf{Sub-rede Principal ($N = 120$):} formada pelos $120$ neurônios de maior conectividade interna na região \texttt{PB}, utilizada em todos os experimentos de análise espectral, verificação de estabilidade de integradores e \textit{knockout} virtual de \textit{hubs};
+    \item \textbf{Subsistema Reduzido de Validação ($N = 20$):} subgrafo induzido pelos $20$ neurônios de maior grau da sub-rede principal, projetado para inspeção algébrica direta e validação cruzada de condicionamento e precisão numérica.
+\end{itemize}
+
+A Tabela~\ref{tab:metricas_conectoma} sintetiza as métricas estruturais, topológicas e sinápticas de ambos os sistemas após a remoção de autossinapses ($W_{ii} = 0$).
 
 \begin{table}[H]
 \centering
-\caption{Modelo de tabela de resultados}
-\label{tab:resultados}
-\begin{tabular}{lrrr}
+\caption{Caracterização estrutural e sináptica das sub-redes reais extraídas da Ponte Protocerebral (\texttt{PB}, \texttt{hemibrain:v1.2.1}).}
+\label{tab:metricas_conectoma}
+\small
+\begin{tabular}{lrr}
 \toprule
-Problema & Resultado numérico & Erro estimado & Iterações\\
+\textbf{Métrica Estrutural / Sináptica} & \textbf{Principal ($N=120$)} & \textbf{Validação ($N=20$)} \\
 \midrule
-Teste 1 & 0,0000 & 0,0000 & 0\\
-Teste 2 & 0,0000 & 0,0000 & 0\\
+Dimensão do sistema ($N$) & $120$ & $20$ \\
+Entradas totais na matriz ($N^2$) & $14.400$ & $400$ \\
+Conexões direcionadas ativas ($W_{ij} > 0$) & $7.392$ & $380$ \\
+Entradas nulas ($W_{ij} = 0$) & $7.008$ & $20$ \\
+Grau de esparsidade da matriz $W$ & $48{,}67\%$ & $5{,}00\%$ \\
+Densidade de conexões não nulas & $51{,}33\%$ & $95{,}00\%$ \\
+Total de sinapses químicas ($\sum_{i,j} W_{ij}$) & $109.886$ & $8.128$ \\
+Peso máximo de conexão individual ($\max W_{ij}$) & $133$ sinapses & $93$ sinapses \\
+Grau aferente máximo ($d_{\max} = \max_i d_i$) & $3.708$ sinapses & $620$ sinapses \\
+Grau aferente mediano ($\operatorname{med}(d_i)$) & $870{,}5$ sinapses & $408{,}5$ sinapses \\
+Grau aferente médio ($\bar{d}$) & $915{,}7$ sinapses & $406{,}4$ sinapses \\
+Grau aferente mínimo ($d_{\min} = \min_i d_i$) & $13$ sinapses & $246$ sinapses \\
+Razão de disparidade topológica ($d_{\max} / d_{\min}$) & $285{,}2\times$ & $2{,}52\times$ \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\subsection{Gráficos e figuras}
-Envie os arquivos de imagem ao Overleaf e atualize o nome no comando abaixo.
+Os dados da Tabela~\ref{tab:metricas_conectoma} revelam aspectos estruturais fundamentais para a análise numérica subsequente. Na sub-rede principal ($N = 120$), embora quase metade das entradas da matriz de adjacência sejam nulas (esparsidade de $48{,}67\%$, totalizando $7.392$ conexões ativas e $109.886$ sinapses químicas), a distribuição dos pesos sinápticos é fortemente assimétrica. O subsistema reduzido ($N = 20$), por concentrar exclusivamente o núcleo de interneurônios globais da Ponte Protocerebral, constitui um clique quase totalmente conectado (densidade de $95{,}00\%$, em que apenas as $20$ entradas diagonais são nulas) e apresenta disparidade moderada entre seus graus ($d_{\max}/d_{\min} = 2{,}52\times$). Em contrapartida, ao expandir a janela de observação para $N = 120$ neurônios, a razão de disparidade topológica entre o neurônio mais conectado e o menos conectado salta para \textbf{$285{,}2$ vezes} ($d_{\max} = 3.708$ contra $d_{\min} = 13$).
+
+Do ponto de vista neurobiológico, a inspeção dos metadados celulares (\path{data/neurons_N120.csv}) demonstra que a hierarquia de graus aferentes $d_i$ reflete exatamente a divisão funcional das famílias neurais da Ponte Protocerebral \cite{scheffer2020}:
+\begin{enumerate}
+    \item \textbf{Mega-\textit{hubs} Integradores (\texttt{LPsP}, $d_i \in [3.539,\, 3.708]$):} o topo absoluto da distribuição é ocupado pelo par bilateral de neurônios \texttt{LPsP} (\textit{Lateral Accessory Lobe--Protocerebral Bridge--Superior Protocerebrum}, \texttt{bodyId} \texttt{881217171} com $d_{\max} = 3.708$ sinapses aferentes e \texttt{bodyId} \texttt{1095275456} com $d_i = 3.539$ sinapses aferentes). Esses neurônios arborizam ao longo de toda a extensão da Ponte Protocerebral, recebendo entrada convergente massiva de dezenas de neurônios colunares;
+    \item \textbf{\textit{Hubs} Inibitórios Locais ($\Delta 7$, $d_i \in [750,\, 1.296]$):} os $42$ interneurônios seguintes na estrutura global pertencem à família $\Delta 7$ (\texttt{Delta7}), interneurônios intrínsecos da \texttt{PB} responsáveis por implementar inibição lateral estruturada ao longo dos glomérulos para normalizar a atividade da bússola neural;
+    \item \textbf{Neurônios Colunares de Bússola e Direção (\texttt{EPG}, \texttt{PEN\_a}, \texttt{PEN\_b}, $d_i \in [480,\, 1.015]$):} a faixa intermediária da distribuição é composta por $40$ neurônios de bússola \texttt{EPG} e $31$ neurônios de rotação angular \texttt{PEN\_a(PEN1)} e \texttt{PEN\_b(PEN2)}, que codificam o ângulo de orientação da cabeça da mosca e promovem a atualização controlada do pacote de atividade;
+    \item \textbf{Neurônios Modulatórios Periféricos (\texttt{OA-VPM3}, \texttt{IbSpsP}, $d_i \in [13,\, 380]$):} a cauda inferior da sub-rede inclui neurônios octopaminérgicos e de acoplamento periférico, como o \texttt{OA-VPM3} (\texttt{bodyId} \texttt{329566174}, com apenas $d_{\min} = 13$ sinapses aferentes internas à sub-rede), que atuam na modulação comportamental lenta de estado global.
+\end{enumerate}
+
+A Figura~\ref{fig:conectoma_hubs} ilustra visualmente essa arquitetura em dois painéis complementares: o mapa de calor em escala logarítmica $\log_{10}(1 + W_{ij})$ da matriz de adjacência $W$ (Painel a) e o perfil ranqueado da condutância sináptica de entrada $d_i = \sum_j W_{ij}$ colorido por família celular, acompanhado do histograma de cauda pesada em destaque interno (Painel b).
+
 \begin{figure}[H]
 \centering
-% Faça upload de figura.png para o projeto Overleaf.
-\IfFileExists{figura.png}{%
-    \includegraphics[width=0.75\textwidth]{figura.png}%
-}{%
-    \fbox{\parbox{0.7\textwidth}{\centering\vspace{1cm}Espaço reservado para figura (\texttt{figura.png})\vspace{1cm}}}%
-}
-\caption{Descrição do gráfico ou da figura.}
-\label{fig:resultado}
-\small Fonte: elaboração própria.
+\includegraphics[width=0.98\textwidth]{fig1_connectome_hubs.png}
+\caption{Caracterização estrutural da sub-rede da Ponte Protocerebral (\texttt{PB}, $N=120$, \texttt{hemibrain:v1.2.1}). \textbf{(a)} Mapa de calor da matriz de conectividade sináptica $W_{ij}$ em escala $\log_{10}(1 + W_{ij})$, destacando o bloco denso formado pelos \textit{hubs} globais (\texttt{LPsP} e $\Delta 7$) e pelos neurônios colunares/anelares (\texttt{EPG}, \texttt{PEN\_a}, \texttt{PEN\_b}). \textbf{(b)} Distribuição ranqueada da condutância sináptica aferente $d_i = \sum_j W_{ij}$ por família celular e histograma de cauda pesada (\textit{inset}), evidenciando a disparidade de $285{,}2\times$ entre o mega-\textit{hub} \texttt{LPsP} (\texttt{ID 881217171}, $d_{\max} = 3.708$) e o neurônio periférico \texttt{OA-VPM3} (\texttt{ID 329566174}, $d_{\min} = 13$).}
+\label{fig:conectoma_hubs}
+\small Fonte: elaboração própria a partir de dados do Janelia Hemibrain (\texttt{hemibrain:v1.2.1}).
 \end{figure}
 
+Sob a perspectiva do operador diferencial $A = -\epsilon I - D_{\text{in}} + W$, a disparidade de $285{,}2\times$ documentada na Tabela~\ref{tab:metricas_conectoma} e na Figura~\ref{fig:conectoma_hubs} antecipa diretamente o comportamento espectral que será demonstrado na Parte~2: enquanto o neurônio periférico \texttt{OA-VPM3} ($d_{\min} = 13$) gera um disco de Gershgorin centrado em $-(\epsilon + 13)$, o mega-\textit{hub} \texttt{LPsP} ($d_{\max} = 3.708$) desloca seu centro espectral para $-(\epsilon + 3.708)$, estendendo os autovalores de $A$ por mais de duas ordens de grandeza ao longo do semiplano complexo esquerdo e induzindo a rigidez numérica do sistema.
+
+% ======================================================================
+% SEÇÕES SUBSEQUENTES (RESERVADAS PARA AS PARTES 2 A 5)
+% ======================================================================
 \section{Análise e discussão}
-Interprete os resultados. Discuta a precisão, a convergência, a estabilidade, o custo computacional e as limitações observadas, conforme o método estudado. Quando possível, compare com uma solução exata, analítica ou de referência.
+\textit{[Seção a ser expandida nas Partes~2 a~5 com a análise integrada do espectro de Gershgorin, limites de estabilidade explícita versus implícita, custo computacional de resolvedores lineares e impacto do knockout virtual de hubs.]}
 
 \section{Conclusões}
-Retome os objetivos e sintetize os principais resultados. Indique o que foi aprendido, as limitações do estudo e possíveis melhorias.
+\textit{[Seção a ser consolidada ao término da Parte~5, sintetizando as conclusões teóricas e experimentais frente aos objetivos (a)--(e).]}
 
 \section{Referências}
-Liste todas as fontes citadas no texto. Cadastre as referências no arquivo \texttt{referencias.bib} e utilize comandos como \texttt{\textbackslash cite\{chave\}}.
-\nocite{*}
-\bibliography{referencias}
+{\renewcommand{\section}[2]{}\bibliography{referencias}}
 
 \appendix
 \section{Código-fonte e instruções de execução}
 \label{sec:codigo}
-Inclua instruções para executar os programas. Para códigos extensos, prefira disponibilizar o material em um repositório e indicar o link abaixo.
+Todo o código-fonte modularizado, os dados em cache da sub-rede extraída e o notebook interativo reprodutível encontram-se disponíveis no repositório oficial do projeto:
 
-\noindent\textbf{Repositório:} \url{https://github.com/brunoabreuco/drosophila-connectome-stiffness}
+\medskip
+\noindent\textbf{Repositório GitHub:} \url{https://github.com/brunoabreuco/drosophila-connectome-stiffness}
 
 \section{Dados e problemas de teste}
-Documente os arquivos de entrada, conjuntos de dados, exemplos, valores iniciais e parâmetros usados nos experimentos. Explique como reproduzir cada teste.
-
-\section{Material complementar}
-Inclua demonstrações, cálculos auxiliares, tabelas adicionais ou outras informações necessárias à compreensão do trabalho.
+Os dados extraídos na Parte~1 encontram-se armazenados no diretório \texttt{data/} do repositório:
+\begin{itemize}
+    \item \path{data/W_real_N120.csv}: matriz de conectividade sináptica principal ($120 \times 120$, convenção pós-sináptica por linha, $W_{ii} = 0$);
+    \item \path{data/neurons_N120.csv}: metadados biológicos dos $120$ neurônios (\texttt{bodyId}, \texttt{type}, \texttt{instance}, \texttt{status}, graus de entrada e saída);
+    \item \path{data/W_real_N20.csv} e \path{data/neurons_N20.csv}: subsistema reduzido ($20 \times 20$) para validação algébrica.
+\end{itemize}
 
 \end{document}
