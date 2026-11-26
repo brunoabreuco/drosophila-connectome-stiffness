@@ -1,0 +1,32 @@
+% Tabela gerada automaticamente por scripts/spectral_analysis.py
+\begin{table}[H]
+\centering
+\caption{Síntese espectral, condicionamento, não-normalidade e passos críticos de estabilidade para a sub-rede principal ($N = 120$) e de validação ($N = 20$) nos modelos Laplaciano ($A = -\epsilon I - D_{\text{in}} + W$) e de deslocamento homogêneo ($A = -\gamma I + W$).}
+\label{tab:espectral_condicionamento}
+\footnotesize
+\setlength{\tabcolsep}{4.5pt}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+\textbf{Métrica / Propriedade Numérica} & \textbf{$N = 120$ (Lapl.)} & \textbf{$N = 20$ (Lapl.)} & \textbf{$N = 120$ (Shift)} & \textbf{$N = 20$ (Shift)} \\
+\midrule
+Dimensão do sistema ($N$) & 120 & 20 & 120 & 20 \\
+Maior centro de Gershgorin $|c_{\max}| = 1 + d_{\max}$ ($\text{s}^{-1}$) & 3709.00 & 1325.00 & 1040.89 & 371.56 \\
+Intervalo real de Gershgorin $[\min(c_i - R_i),\, \max(c_i + R_i)]$ & [-7417.0, -1.0] & [-2649.0, -1.0] & [-4748.9, 2667.1] & [-1695.6, 952.4] \\
+Modo mais rápido $\max_k |\text{Re}(\lambda_k)|$ ($\text{s}^{-1}$) & 3722.8564 & 1335.7675 & 1299.3653 & 459.6995 \\
+Modo mais lento $\min_k |\text{Re}(\lambda_k)|$ ($\text{s}^{-1}$) & 1.0000 & 1.0000 & 1.0000 & 1.0000 \\
+Raio espectral $\rho(A) = \max_k |\lambda_k|$ ($\text{s}^{-1}$) & 3722.8564 & 1335.7708 & 1299.3653 & 459.6995 \\
+Frequência oscilatória máxima $\max_k |\text{Im}(\lambda_k)|$ ($\text{rad/s}$) & 56.73 & 9.27 & 247.47 & 10.98 \\
+Autovalores complexos ($|\text{Im}(\lambda_k)| > 10^{-8}$) & 70 (35 pares) & 10 (5 pares) & 94 (47 pares) & 14 (7 pares) \\
+Razão de rigidez $S(A) = \max|\text{Re}(\lambda)| / \min|\text{Re}(\lambda)|$ & 3722.86 & 1335.77 & 1299.37 & 459.70 \\
+Maior valor singular $\sigma_{\max}(A)$ & 3764.76 & 1385.08 & 1383.64 & 585.06 \\
+Menor valor singular $\sigma_{\min}(A)$ & 0.4614 & 0.9559 & 0.9380 & 0.7685 \\
+Número de condicionamento $\kappa_2(A) = \sigma_{\max}/\sigma_{\min}$ & 8159.90 & 1448.97 & 1475.07 & 761.25 \\
+Número de condicionamento em norma infinito $\kappa_\infty(A)$ & 7417.00 & 2649.00 & 15347.47 & 5360.83 \\
+Índice de não-normalidade $\|A A^T - A^T A\|_F / \|A\|_F^2$ & 0.02587 & 0.13039 & 0.00761 & 0.09870 \\
+Afastamento de normalidade de Henrici $\Delta_H(A) / \|A\|_F$ & 0.1276 & 0.1609 & 0.1140 & 0.2156 \\
+Condicionamento da base de autovetores $\kappa_2(V)$ (Bauer-Fike) & 82.35 & 20.35 & 106.02 & 22.89 \\
+Passo crítico exato Euler Explícito $h_{\text{crit, EE}}$ (s) & 0.000537 & 0.001497 & 0.001539 & 0.004351 \\
+Passo crítico exato RK4 $h_{\text{crit, RK4}}$ (s) & 0.000748 & 0.002085 & 0.002144 & 0.006059 \\
+\bottomrule
+\end{tabular}
+\end{table}
